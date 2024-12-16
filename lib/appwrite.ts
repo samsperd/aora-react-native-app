@@ -36,7 +36,7 @@ export const createUser = async({email, password, username}: { email: string; pa
         }
 
         const avatarUrl = avatars.getInitials(username)
-        await signIn(email, password)
+        await signIn({email, password})
 
         const newUser = await databases.createDocument(config.databaseId, config.userCollectionId,
             ID.unique(),
@@ -50,16 +50,20 @@ export const createUser = async({email, password, username}: { email: string; pa
 
         return newUser
     } catch (error) {
-        console.error(error);
+        const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred";
+        throw new Error(errorMessage);
         
     }
 
 }
 
-export const signIn = async (email: string, password:string) => {
+export const signIn = async ({email, password}: {email: string, password:string}) => {
     try {
         const session = await account.createEmailPasswordSession(email, password)
+
+        return session;
     } catch (error) {
-        throw new Error("Error signing in")
+        const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred";
+        throw new Error(errorMessage);
     }
 }

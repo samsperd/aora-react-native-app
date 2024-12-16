@@ -1,10 +1,11 @@
-import { View, Text, ScrollView, Image } from 'react-native'
+import { View, Text, ScrollView, Image, Alert } from 'react-native'
 import React, { useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { images } from '../../constants'
 import FormField from '../components/FormField'
 import CustomButton from '../components/CustomButton'
-import { Link } from 'expo-router'
+import { Link, router } from 'expo-router'
+import { createUser, signIn } from '../../lib/appwrite'
 
 const SignIn = () => {
   const [form, setForm] = useState({
@@ -13,10 +14,25 @@ const SignIn = () => {
   })
 
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const handleSubmit = () => {
+  const handleSubmit = async() => {
     setIsSubmitting(true)
+    if (!form.email || !form.password) {
+      Alert.alert("Error", "Please fill in all the fields")
+    }
+
+    try {
+      await signIn(form)
+
+      // set it to global state...
+
+      router.replace('/home')
+      
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred";
+      Alert.alert("Error", errorMessage)
+    }
     // console.log("books");
-    
+    setIsSubmitting(false)    
   }
 
   return (
