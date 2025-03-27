@@ -1,4 +1,4 @@
-import { Account, Avatars, Client, Databases, ID } from 'react-native-appwrite';
+import { Account, Avatars, Client, Databases, ID, Query } from 'react-native-appwrite';
 
 export const config ={
     endpoint: "https://cloud.appwrite.io/v1",
@@ -62,6 +62,31 @@ export const signIn = async ({email, password}: {email: string, password:string}
         const session = await account.createEmailPasswordSession(email, password)
 
         return session;
+    } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred";
+        throw new Error(errorMessage);
+    }
+}
+
+export const getCurrentUser = async() => {
+    try {
+        const currentAccount = await account.get()
+
+        if (!currentAccount) {
+            throw Error
+        }
+
+        const currentUser = await databases.listDocuments(
+            config.databaseId,
+            config.userCollectionId,
+            [Query.equal('accountId', currentAccount.$id)]
+        )
+
+        if (!currentUser) {
+            throw Error
+        }
+
+        return currentUser.documents[0]
     } catch (error) {
         const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred";
         throw new Error(errorMessage);

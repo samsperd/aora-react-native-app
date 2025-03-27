@@ -1,12 +1,13 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect } from 'react';
-import { Link, router, SplashScreen } from "expo-router";
+import { Link, Redirect, router, SplashScreen } from "expo-router";
 import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useFonts } from 'expo-font'
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { images } from '../constants';
 import CustomButton from './components/CustomButton';
 import 'react-native-url-polyfill/auto'
+import { useGlobalContext } from '../context/GlobalProvider';
 
 
 SplashScreen.preventAutoHideAsync();
@@ -24,6 +25,8 @@ export default function App() {
     "Poppins-SemiBold": require("../assets/fonts/Poppins-SemiBold.ttf"),
     "Poppins-Thin": require("../assets/fonts/Poppins-Thin.ttf"),
   });
+  
+  const { isLoading, isLoggedIn } = useGlobalContext()
 
   useEffect(() => {
     if (error) throw error
@@ -35,6 +38,10 @@ export default function App() {
 
   if (!fontsLoaded && !error) {
     return null
+  }
+
+  if (!isLoading && isLoggedIn) {
+    return <Redirect href={'/home'} />
   }
 
   return (
